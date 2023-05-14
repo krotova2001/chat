@@ -106,7 +106,7 @@ namespace chat
                 NetworkStream sm = tcpClient.GetStream();
                 string d = textBox2.Text.Trim() + "\n";
                 Messag msg = new Messag(d, self_name);
-                string jsonString = JsonSerializer.Serialize<Messag>(msg);
+                string jsonString = Base64Encode(JsonSerializer.Serialize<Messag>(msg));
                 byte[] m = Encoding.Unicode.GetBytes(jsonString);
                 sm.Write(m, 0, m.Length);
                 cmd.Text += $"\nI'm:{msg.Mes.Trim()}";
@@ -128,7 +128,7 @@ namespace chat
                     byte[] m = new byte[1024];
                     string jsonString;
                     int l = sm.Read(m,0,m.Length);
-                    jsonString = Encoding.UTF8.GetString(m);
+                    jsonString = Base64Decode(Encoding.UTF8.GetString(m));
                     List <string> lst = JsonSerializer.Deserialize<List<string>>(jsonString);
                     foreach (string cc in lst)
                         listBox1.Items.Add(cc);
@@ -137,6 +137,18 @@ namespace chat
             }
            
         }
-        
+
+        public static string Base64Encode(string plainText)
+        {
+            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
+            return System.Convert.ToBase64String(plainTextBytes);
+        }
+
+        public static string Base64Decode(string base64EncodedData)
+        {
+            var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
+            return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
+        }
+
     }
 }
