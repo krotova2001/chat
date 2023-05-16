@@ -17,7 +17,6 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Text.Json;
 
-
 namespace ChatServer
 {
     public partial class Form1 : Form

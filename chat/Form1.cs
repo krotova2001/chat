@@ -70,15 +70,23 @@ namespace chat
                     if (data != null)
                     {
                         mes = JsonSerializer.Deserialize<Messag>(data);
-                        d = mes.Mes;
-                        if (d.Trim() != "")
+                        if (mes.Common)
                         {
-                            this.Invoke(new Action(
-                                () =>
-                                {
-                                    cmd.Text += $"\n{d}";
-                                }
-                                ));
+                            d = mes.Mes;
+                            if (d.Trim() != "")
+                            {
+                                this.Invoke(new Action(
+                                    () =>
+                                    {
+                                        cmd.Text += $"\n{d}";
+                                    }
+                                    ));
+                            }
+                        }
+                        else
+                        {
+                            Game game = new Game();
+                            game.ShowDialog();
                         }
                     }
                 } while (d != "exit");
@@ -155,5 +163,16 @@ namespace chat
             return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
         }
 
+        //Game
+        private void button3_Click(object sender, EventArgs e)
+        {
+            Messag messag = new Messag("game", self_name);
+            messag.Common = false;
+            NetworkStream sm = tcpClient.GetStream();
+            string jsonString = Base64Encode(JsonSerializer.Serialize<Messag>(messag));
+            jsonString += "\r\n";
+            byte[] m = Encoding.Unicode.GetBytes(jsonString);
+            sm.Write(m, 0, m.Length);
+        }
     }
 }

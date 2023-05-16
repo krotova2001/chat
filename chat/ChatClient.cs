@@ -12,6 +12,7 @@ namespace chat
     {
         public TcpClient Client=null;
         public String Name="";
+        
         public override string ToString()
         {
             return Name;
