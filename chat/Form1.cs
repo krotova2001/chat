@@ -66,16 +66,20 @@ namespace chat
                 StreamReader sr = new StreamReader(tcpClient.GetStream(), Encoding.Unicode);
                 do
                 {
-                    mes = JsonSerializer.Deserialize<Messag>(sr.ReadToEnd());
-                    d = mes.Mes;
-                    if (d.Trim() != "")
+                    string data = Base64Decode(sr.ReadLine());
+                    if (data != null)
                     {
-                        this.Invoke(new Action(
-                            () =>
-                            {
-                                cmd.Text += $"\n{d}";
-                            }
-                            ));
+                        mes = JsonSerializer.Deserialize<Messag>(data);
+                        d = mes.Mes;
+                        if (d.Trim() != "")
+                        {
+                            this.Invoke(new Action(
+                                () =>
+                                {
+                                    cmd.Text += $"\n{d}";
+                                }
+                                ));
+                        }
                     }
                 } while (d != "exit");
             }
@@ -107,6 +111,7 @@ namespace chat
                 string d = textBox2.Text.Trim() + "\n";
                 Messag msg = new Messag(d, self_name);
                 string jsonString = Base64Encode(JsonSerializer.Serialize<Messag>(msg));
+                jsonString +="\r\n";
                 byte[] m = Encoding.Unicode.GetBytes(jsonString);
                 sm.Write(m, 0, m.Length);
                 cmd.Text += $"\nI'm:{msg.Mes.Trim()}";
@@ -147,7 +152,7 @@ namespace chat
         public static string Base64Decode(string base64EncodedData)
         {
             var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
-            return System.Text.Encoding.UTF8.GetString(base64EncodedBytes) + "/r/n";
+            return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
         }
 
     }

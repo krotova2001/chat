@@ -86,14 +86,12 @@ namespace ChatServer
             try
             {
                 string d = "";
-                string data = "";
                 StreamReader sr = new StreamReader(client.Client.GetStream(), Encoding.Unicode);
                 do
                 {
-                    data = sr.ReadLine();
-                    string data2 = Base64Decode(data);
-                    Messag mes = JsonSerializer.Deserialize<Messag>(data2);
-                    MessageBox.Show(data);
+                    string data_raw = sr.ReadLine();
+                    string data = Base64Decode(data_raw);
+                    Messag mes = JsonSerializer.Deserialize<Messag>(data);
                     d = mes.Mes;
                     if (d.Trim() != "")
                     {
@@ -107,7 +105,7 @@ namespace ChatServer
                     //     lock (chatClients)
                     {
                         //String mess = $"{client.Name}:{d}\n";
-                        byte[] m = Encoding.Unicode.GetBytes(data);
+                        byte[] m = Encoding.Unicode.GetBytes(data_raw+'\n');
                         foreach (ChatClient cl in chatClients)
                         {
                             if (cl != client)
