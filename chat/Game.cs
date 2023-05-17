@@ -26,8 +26,8 @@ namespace chat
 
         private void Game_Load(object sender, EventArgs e)
         {
-            Task.Run(() => { Scoring(); });
-            Task.Run(() => { Start_game(); });
+            //Task.Run(() => { Scoring(); });
+            //Task.Run(() => { Start_game(); });
         }
 
 
@@ -38,10 +38,10 @@ namespace chat
 
         public Game(string cl1, TcpClient tcp)
         {
+            InitializeComponent();
             client1 = cl1;
             tcpClient = tcp;
             this.Name = client1 + " играет ";
-            InitializeComponent();
         }
 
         public Game(string cl1, string cl2, TcpClient tcp)
@@ -58,25 +58,26 @@ namespace chat
         private void button1_Click(object sender, EventArgs e)
         {
             cl1_choise = 1;
+            Send();
         }
 
         //Ножницы
         private void button2_Click(object sender, EventArgs e)
         {
             cl1_choise = 2;
+            Send();
         }
 
         //Бумага
         private void button3_Click(object sender, EventArgs e)
         {
             cl1_choise = 3;
+            Send();
         }
 
         //сделать один ход и выбор победителя хода
         void Hod ()
         {
-            while (true)
-            {
                 if (cl1_choise > 0 && cl2_choise > 0)
                 {
                     if (cl1_choise == cl2_choise)
@@ -112,7 +113,6 @@ namespace chat
                 {
                     label2.Text = "Ждем ход...";
                 }
-            }
         }
 
         //запуск игры
@@ -126,7 +126,7 @@ namespace chat
                 StreamReader sr = new StreamReader(tcpClient.GetStream(), Encoding.Unicode);
                 while (true)
                 {
-                    Send();
+                    
                     string data = Base64Decode(sr.ReadLine()); // получим выбор оппонента
                     mes = JsonSerializer.Deserialize<Messag>(data);
                     if (!mes.Common) // тут фильтруются игровые сообщения от общения
@@ -155,7 +155,6 @@ namespace chat
         //завершить
             private void button4_Click(object sender, EventArgs e)
         {
-            //cl1_choise = -1;
             this.Close();
         }
 

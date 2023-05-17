@@ -87,8 +87,7 @@ namespace chat
                         {
                             if (mes.Mes == "game")
                             {
-                                Game game = new Game(self_name, mes.Name, tcpClient);
-                                game.ShowDialog();
+                                Task.Run(() => { Game_call(mes); });
                             }
                         }
                     }
@@ -177,7 +176,14 @@ namespace chat
             byte[] m = Encoding.Unicode.GetBytes(jsonString);
             sm.Write(m, 0, m.Length);
             Game game = new Game(self_name, tcpClient);
-            game.ShowDialog();
+            game.Show();
+        }
+
+        //Game
+        private void Game_call(Messag m)
+        {
+            Game game = new Game(self_name, m.Name, tcpClient);
+            game.Show();
         }
 
         

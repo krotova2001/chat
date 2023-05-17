@@ -85,6 +85,7 @@ namespace ChatServer
             try
             {
                 string d = "";
+                int c;
                 StreamReader sr = new StreamReader(client.Client.GetStream(), Encoding.Unicode);
                 do
                 {
@@ -92,12 +93,14 @@ namespace ChatServer
                     string data = Base64Decode(data_raw);
                     Messag mes = JsonSerializer.Deserialize<Messag>(data);
                     d = mes.Mes;
+                    c = mes.choise;
                     if (d.Trim() != "")
                     {
                         this.Invoke(new Action(
                             () =>
                             {
                                 cmd.Text += $"\n{client.Name}-{d}";
+                                cmd.Text += $"\n{client.Name}-{c}";
                             }
                             ));
                     }
