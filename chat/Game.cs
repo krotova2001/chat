@@ -130,7 +130,6 @@ namespace chat
                 {
                     string data = Base64Decode(sr.ReadLine()); // получим выбор оппонента
                     mes = JsonSerializer.Deserialize<Messag>(data);
-                    //if (!mes.Common) // тут фильтруются игровые сообщения от общения
                     {
                         cl2_choise = mes.choise; // записали выбор оппонента
                     }
