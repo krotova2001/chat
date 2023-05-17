@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -12,20 +15,43 @@ namespace chat
 {
     public partial class Game : Form
     {
+        public TcpClient tcpClient = null;
         string client1; // игрок 1
         string client2; // игрок 2
         int cl1_choise=0; // выбор игрока 1
         int cl2_choise=0; // выбор игрока 2
         int client_1_score = 0; // счет одного 
         int client_2_score = 0; // счет второго
+
+
+        private void Game_Load(object sender, EventArgs e)
+        {
+            Task.Run(() => { Scoring(); });
+            Task.Run(() => { Start_game(); });
+        }
+
+
         public Game()
         {
             InitializeComponent();
         }
 
-        public Game(string cl1)
+        public Game(string cl1, TcpClient tcp)
         {
             client1 = cl1;
+            tcpClient = tcp;
+            this.Name = client1 + " играет ";
+            InitializeComponent();
+        }
+
+        public Game(string cl1, string cl2, TcpClient tcp)
+        {
+            InitializeComponent();
+            client1 = cl1;
+            client2 = cl2;
+            tcpClient = tcp;
+            this.Text = client1 + " играет c " + client2;
+
         }
 
         //Камень
@@ -46,10 +72,10 @@ namespace chat
             cl1_choise = 3;
         }
 
-        //сделать один ход
+        //сделать один ход и выбор победителя хода
         void Hod ()
         {
-            while (cl1_choise != -1 || cl2_choise != -1)
+            while (true)
             {
                 if (cl1_choise > 0 && cl2_choise > 0)
                 {
@@ -87,14 +113,93 @@ namespace chat
                     label2.Text = "Ждем ход...";
                 }
             }
-            
+        }
+
+        //запуск игры
+        private void Start_game()
+        {
+            while (cl1_choise != 0) // отправим наш выбор
+            { 
+            try
+            {
+                Messag mes;
+                StreamReader sr = new StreamReader(tcpClient.GetStream(), Encoding.Unicode);
+                while (true)
+                {
+                    Send();
+                    string data = Base64Decode(sr.ReadLine()); // получим выбор оппонента
+                    mes = JsonSerializer.Deserialize<Messag>(data);
+                    if (!mes.Common) // тут фильтруются игровые сообщения от общения
+                    {
+                        cl2_choise = mes.choise; // записали выбор оппонента
+                    }
+
+                    this.Invoke(new Action(
+                   () =>
+                   {
+                       Task.Run(() => { Hod(); });
+                       textBox1.Text = mes.choise.ToString();
+                   }
+                   ));
+                    cl1_choise = 0;
+                    cl2_choise = 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
         }
 
         //завершить
-        private void button4_Click(object sender, EventArgs e)
+            private void button4_Click(object sender, EventArgs e)
         {
-            cl1_choise = -1;
+            //cl1_choise = -1;
             this.Close();
         }
+
+        public static string Base64Encode(string plainText)
+        {
+            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
+            return System.Convert.ToBase64String(plainTextBytes);
+        }
+
+        public static string Base64Decode(string base64EncodedData)
+        {
+            var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
+            return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
+        }
+
+        private void Scoring()
+        {
+            while (true)
+            {
+                this.Invoke(new Action(
+                   () =>
+                   {
+                       label3.Text = client_1_score.ToString();
+                       label4.Text = client_2_score.ToString();
+                   }
+                   ));
+             
+            }
+        }
+
+        private void Send()
+        {
+           
+            {
+                Messag to_send = new Messag("", client1);
+                to_send.Common = false;
+                to_send.choise = cl1_choise;
+                NetworkStream sm = tcpClient.GetStream();
+                string jsonString = Base64Encode(JsonSerializer.Serialize<Messag>(to_send));
+                jsonString += "\r\n";
+                byte[] m = Encoding.Unicode.GetBytes(jsonString);
+                sm.Write(m, 0, m.Length);
+            }
+        }
+
     }
 }

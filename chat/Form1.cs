@@ -70,7 +70,7 @@ namespace chat
                     if (data != null)
                     {
                         mes = JsonSerializer.Deserialize<Messag>(data);
-                        if (mes.Common)
+                        if (mes.Common) // тут фильтруются игровые сообщения от общения
                         {
                             d = mes.Mes;
                             if (d.Trim() != "")
@@ -85,8 +85,11 @@ namespace chat
                         }
                         else
                         {
-                            Game game = new Game();
-                            game.ShowDialog();
+                            if (mes.Mes == "game")
+                            {
+                                Game game = new Game(self_name, mes.Name, tcpClient);
+                                game.ShowDialog();
+                            }
                         }
                     }
                 } while (d != "exit");
@@ -173,6 +176,10 @@ namespace chat
             jsonString += "\r\n";
             byte[] m = Encoding.Unicode.GetBytes(jsonString);
             sm.Write(m, 0, m.Length);
+            Game game = new Game(self_name, tcpClient);
+            game.ShowDialog();
         }
+
+        
     }
 }
