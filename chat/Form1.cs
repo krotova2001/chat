@@ -155,14 +155,14 @@ namespace chat
 
         public static string Base64Encode(string plainText)
         {
-            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
+            var plainTextBytes = System.Text.Encoding.Unicode.GetBytes(plainText);
             return System.Convert.ToBase64String(plainTextBytes);
         }
 
         public static string Base64Decode(string base64EncodedData)
         {
             var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
-            return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
+            return System.Text.Encoding.Unicode.GetString(base64EncodedBytes);
         }
 
         //Game
@@ -175,7 +175,7 @@ namespace chat
             jsonString += "\r\n";
             byte[] m = Encoding.Unicode.GetBytes(jsonString);
             sm.Write(m, 0, m.Length);
-            Game game = new Game(self_name, tcpClient);
+            Game game = new Game(self_name,"", tcpClient);
             game.Show();
         }
 

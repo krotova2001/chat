@@ -94,7 +94,7 @@ namespace ChatServer
                     Messag mes = JsonSerializer.Deserialize<Messag>(data);
                     d = mes.Mes;
                     c = mes.choise;
-                    if (d.Trim() != "")
+                    //if (d.Trim() != "")
                     {
                         this.Invoke(new Action(
                             () =>
@@ -104,9 +104,7 @@ namespace ChatServer
                             }
                             ));
                     }
-                    //     lock (chatClients)
                     {
-                        //String mess = $"{client.Name}:{d}\n";
                         byte[] m = Encoding.Unicode.GetBytes(data_raw+"\r\n");
                         foreach (ChatClient cl in chatClients)
                         {
@@ -172,14 +170,14 @@ namespace ChatServer
 
         public static string Base64Encode(string plainText)
         {
-            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
+            var plainTextBytes = System.Text.Encoding.Unicode.GetBytes(plainText);
             return System.Convert.ToBase64String(plainTextBytes)+"/r/n";
         }
 
         public static string Base64Decode(string base64EncodedData)
         {
             var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
-            return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
+            return System.Text.Encoding.Unicode.GetString(base64EncodedBytes);
         }
     }
 }
