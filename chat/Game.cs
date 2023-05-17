@@ -27,7 +27,7 @@ namespace chat
         private void Game_Load(object sender, EventArgs e)
         {
             //Task.Run(() => { Scoring(); });
-            //Task.Run(() => { Start_game(); });
+            Task.Run(() => { Start_game(); });
         }
 
 
@@ -58,21 +58,21 @@ namespace chat
         private void button1_Click(object sender, EventArgs e)
         {
             cl1_choise = 1;
-            Send();
+            
         }
 
         //Ножницы
         private void button2_Click(object sender, EventArgs e)
         {
             cl1_choise = 2;
-            Send();
+            
         }
 
         //Бумага
         private void button3_Click(object sender, EventArgs e)
         {
             cl1_choise = 3;
-            Send();
+            
         }
 
         //сделать один ход и выбор победителя хода
@@ -118,7 +118,7 @@ namespace chat
         //запуск игры
         private void Start_game()
         {
-            while (cl1_choise != 0) // отправим наш выбор
+            while (true) // отправим наш выбор
             { 
             try
             {
@@ -126,10 +126,10 @@ namespace chat
                 StreamReader sr = new StreamReader(tcpClient.GetStream(), Encoding.Unicode);
                 while (true)
                 {
-                    
+                    Send();
                     string data = Base64Decode(sr.ReadLine()); // получим выбор оппонента
                     mes = JsonSerializer.Deserialize<Messag>(data);
-                    if (!mes.Common) // тут фильтруются игровые сообщения от общения
+                    //if (!mes.Common) // тут фильтруются игровые сообщения от общения
                     {
                         cl2_choise = mes.choise; // записали выбор оппонента
                     }
@@ -189,7 +189,7 @@ namespace chat
         {
            
             {
-                Messag to_send = new Messag("", client1);
+                Messag to_send = new Messag("  ", client1);
                 to_send.Common = false;
                 to_send.choise = cl1_choise;
                 NetworkStream sm = tcpClient.GetStream();

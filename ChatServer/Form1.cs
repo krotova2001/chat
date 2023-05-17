@@ -107,7 +107,7 @@ namespace ChatServer
                     //     lock (chatClients)
                     {
                         //String mess = $"{client.Name}:{d}\n";
-                        byte[] m = Encoding.Unicode.GetBytes(data_raw+'\n');
+                        byte[] m = Encoding.Unicode.GetBytes(data_raw+"\r\n");
                         foreach (ChatClient cl in chatClients)
                         {
                             if (cl != client)

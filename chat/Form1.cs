@@ -179,11 +179,11 @@ namespace chat
             game.Show();
         }
 
-        //Game
+        //Game пассивно
         private void Game_call(Messag m)
         {
             Game game = new Game(self_name, m.Name, tcpClient);
-            game.Show();
+            game.ShowDialog(); //тут обязательно в диалоговом режиме, иначе виснет
         }
 
         
