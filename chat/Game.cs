@@ -26,7 +26,7 @@ namespace chat
 
         private void Game_Load(object sender, EventArgs e)
         {
-            Task.Run(() => { Scoring(); });
+            Task.Run(() => { Scoring(); }); // мониторим счет и выводим его
             Task.Run(() => { Start_game(); });
         }
 
@@ -134,14 +134,12 @@ namespace chat
                     {
                         cl2_choise = mes.choise; // записали выбор оппонента
                     }
-                    this.Invoke(new Action(
-                   () =>
-                   {
-                       Task.Run(() => { Hod(); });
-                       textBox1.Text = mes.choise.ToString();
-                   }
-                   ));
-                    
+                    if (cl1_choise > 0 && cl2_choise > 0)
+                    {
+                        Task.Run(() => { Hod(); });
+                        textBox1.Text = mes.choise.ToString();
+                    }
+                   
                 }
             }
             catch (Exception ex)
@@ -195,8 +193,6 @@ namespace chat
                 jsonString += "\r\n";
                 byte[] m = Encoding.Unicode.GetBytes(jsonString);
                 sm.Write(m, 0, m.Length);
-               
-                
             }
         }
     }
