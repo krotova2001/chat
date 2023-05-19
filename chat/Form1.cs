@@ -176,7 +176,7 @@ namespace chat
             byte[] m = Encoding.Unicode.GetBytes(jsonString);
             sm.Write(m, 0, m.Length);
             Game game = new Game(self_name,"", tcpClient);
-            game.Show();
+            game.ShowDialog();
         }
 
         //Game пассивно

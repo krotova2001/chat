@@ -18,16 +18,15 @@ namespace chat
         public TcpClient tcpClient = null;
         string client1; // игрок 1
         string client2; // игрок 2
-        int cl1_choise=0; // выбор игрока 1
-        int cl2_choise=0; // выбор игрока 2
-        int client_1_score = -1; // счет одного 
-        int client_2_score = -1; // счет второго
-
+        string cl1_choise="z"; // выбор игрока 1
+        string cl2_choise ="z"; // выбор игрока 2
+        int client_1_score = 0; // счет одного 
+        int client_2_score = 0; // счет второго
 
         private void Game_Load(object sender, EventArgs e)
         {
-            Task.Run(() => { Scoring(); }); // мониторим счет и выводим его
             Task.Run(() => { Start_game(); });
+            //Task.Run(() => { Scoring(); }); // мониторим счет и выводим его
         }
 
 
@@ -54,59 +53,60 @@ namespace chat
         //Камень
         private void button1_Click(object sender, EventArgs e)
         {
-            cl1_choise = 1;
+            cl1_choise = "k";
             Send();
         }
 
         //Ножницы
         private void button2_Click(object sender, EventArgs e)
         {
-            cl1_choise = 2;
+            cl1_choise = "n";
             Send();
         }
 
         //Бумага
         private void button3_Click(object sender, EventArgs e)
         {
-            cl1_choise = 3;
+            cl1_choise = "b";
             Send();
         }
 
         //сделать один ход и выбор победителя хода
         void Hod ()
         {
-                if (cl1_choise > 0 && cl2_choise > 0)
+                if (cl1_choise !="z" && cl2_choise != "z")
                 {
                     if (cl1_choise == cl2_choise)
                     {
                         label2.Text = "Ничья";
                     }
-                    if (cl1_choise == 1 && cl2_choise == 2) // камень - ножницы
+                    if (cl1_choise == "k" && cl2_choise == "n") // камень - ножницы
                     {
                         client_1_score++;
                     }
-                    if (cl1_choise == 1 && cl2_choise == 3)// камень - бумага
+                    if (cl1_choise == "k" && cl2_choise == "b")// камень - бумага
                     {
                         client_2_score++;
                     }
-                    if (cl1_choise == 2 && cl2_choise == 1)// ножницы - камень
+                    if (cl1_choise == "n" && cl2_choise == "k")// ножницы - камень
                     {
                         client_2_score++;
                     }
-                    if (cl1_choise == 2 && cl2_choise == 3)// ножницы - бумага
+                    if (cl1_choise == "n" && cl2_choise == "b")// ножницы - бумага
                     {
                         client_1_score++;
                     }
-                    if (cl1_choise == 3 && cl2_choise == 1)// бумага - камень
+                    if (cl1_choise == "b" && cl2_choise == "k")// бумага - камень
                     {
                         client_1_score++;
                     }
-                    if (cl1_choise == 3 && cl2_choise == 2)// бумага - ножницы
+                    if (cl1_choise == "b" && cl2_choise == "n")// бумага - ножницы
                     {
                         client_2_score++;
                     }
-                cl1_choise = 0;
-                cl2_choise = 0;
+                Scoring();
+                cl1_choise = "z";
+                cl2_choise = "z";
             }
                 else
                 {
@@ -133,12 +133,11 @@ namespace chat
                     {
                         cl2_choise = mes.choise; // записали выбор оппонента
                     }
-                    if (cl1_choise > 0 && cl2_choise > 0)
+                    if (cl1_choise != "z" && cl2_choise != "z")
                     {
                         Task.Run(() => { Hod(); });
                         textBox1.Text = mes.choise.ToString();
                     }
-                   
                 }
             }
             catch (Exception ex)
@@ -184,9 +183,8 @@ namespace chat
         private void Send()
         {
             {
-                Messag to_send = new Messag("  ", client1);
+                Messag to_send = new Messag("hod", client1, cl1_choise);
                 to_send.Common = false;
-                to_send.choise = cl1_choise;
                 NetworkStream sm = tcpClient.GetStream();
                 string jsonString = Base64Encode(JsonSerializer.Serialize<Messag>(to_send));
                 jsonString += "\r\n";

@@ -85,7 +85,7 @@ namespace ChatServer
             try
             {
                 string d = "";
-                int c;
+                string c;
                 StreamReader sr = new StreamReader(client.Client.GetStream(), Encoding.Unicode);
                 do
                 {
@@ -99,8 +99,8 @@ namespace ChatServer
                         this.Invoke(new Action(
                             () =>
                             {
-                                cmd.Text += $"\n{client.Name}-{d}";
-                                cmd.Text += $"\n{client.Name}-{c}";
+                                cmd.Text += $"\n{client.Name}-{mes.Mes}";
+                                cmd.Text += $"\n{client.Name + " выбор"}-{mes.choise}";
                             }
                             ));
                     }
