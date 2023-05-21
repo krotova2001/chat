@@ -13,6 +13,7 @@ namespace ChatServer
         public string Mes { get; set; } // содержание сообщения
         public bool Common  { get; set; } = true; // общее ли сообщение
         public string choise { get; set; }= "z"; // выбор в игре
+        public List<string> list { get; set; } = new List<string>();
         public Messag (string mes, string name)
         {
             Mes = mes;

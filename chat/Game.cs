@@ -29,18 +29,11 @@ namespace chat
             //Task.Run(() => { Scoring(); }); // мониторим счет и выводим его
         }
 
-
-        public Game()
-        {
-            InitializeComponent();
-        }
-
         public Game(string cl1, string cl2, TcpClient tcp)
         {
             InitializeComponent();
             client1 = cl1;
             client2 = cl2;
-            //tcpClient = tcp;
             tcpClient = new TcpClient();
             tcpClient.Connect("127.0.0.1", 777);
             NetworkStream sm = tcpClient.GetStream();
@@ -71,79 +64,35 @@ namespace chat
             Send();
         }
 
-        //сделать один ход и выбор победителя хода
-        void Hod ()
-        {
-                if (cl1_choise !="z" && cl2_choise != "z")
-                {
-                    if (cl1_choise == cl2_choise)
-                    {
-                        label2.Text = "Ничья";
-                    }
-                    if (cl1_choise == "k" && cl2_choise == "n") // камень - ножницы
-                    {
-                        client_1_score++;
-                    }
-                    if (cl1_choise == "k" && cl2_choise == "b")// камень - бумага
-                    {
-                        client_2_score++;
-                    }
-                    if (cl1_choise == "n" && cl2_choise == "k")// ножницы - камень
-                    {
-                        client_2_score++;
-                    }
-                    if (cl1_choise == "n" && cl2_choise == "b")// ножницы - бумага
-                    {
-                        client_1_score++;
-                    }
-                    if (cl1_choise == "b" && cl2_choise == "k")// бумага - камень
-                    {
-                        client_1_score++;
-                    }
-                    if (cl1_choise == "b" && cl2_choise == "n")// бумага - ножницы
-                    {
-                        client_2_score++;
-                    }
-                Scoring();
-                cl1_choise = "z";
-                cl2_choise = "z";
-            }
-                else
-                {
-                this.Invoke(new Action(
-                  () =>
-                  {
-                      label2.Text = "Ждем ход...";
-                  }
-                  ));
-                }
-        }
-
         //запуск игры
         private void Start_game()
         {
-            try
-            {
-                Messag mes;
-                StreamReader sr = new StreamReader(tcpClient.GetStream(), Encoding.Unicode);
-                while (true)
+          
+                if (cl1_choise != "z")
                 {
-                    string data = Base64Decode(sr.ReadLine()); // получим выбор оппонента
-                    mes = JsonSerializer.Deserialize<Messag>(data);
+                    try
                     {
-                        cl2_choise = mes.choise; // записали выбор оппонента
+                        Messag mes;
+                        StreamReader sr = new StreamReader(tcpClient.GetStream(), Encoding.Unicode);
+                        while (true)
+                        {
+                            string data = Base64Decode(sr.ReadLine()); // получим выбор оппонента
+                            mes = JsonSerializer.Deserialize<Messag>(data);
+                            {
+                                cl2_choise = mes.choise; // записали выбор оппонента
+                            }
+                            if (cl1_choise != "z" && cl2_choise != "z")
+                            {
+                                textBox1.Text = mes.choise.ToString();
+                            }
+                        }
                     }
-                    if (cl1_choise != "z" && cl2_choise != "z")
+                    catch (Exception ex)
                     {
-                        Task.Run(() => { Hod(); });
-                        textBox1.Text = mes.choise.ToString();
+                        MessageBox.Show(ex.Message);
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
+            
         }
 
         //завершить

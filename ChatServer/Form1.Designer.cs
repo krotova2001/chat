@@ -28,7 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.cmd = new System.Windows.Forms.RichTextBox();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // cmd
@@ -39,6 +41,11 @@
             this.cmd.Size = new System.Drawing.Size(161, 289);
             this.cmd.TabIndex = 0;
             this.cmd.Text = "";
+            // 
+            // timer1
+            // 
+            this.timer1.Interval = 5000;
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
             // Form1
             // 
@@ -55,6 +62,7 @@
         #endregion
 
         private System.Windows.Forms.RichTextBox cmd;
+        private System.Windows.Forms.Timer timer1;
     }
 }
 

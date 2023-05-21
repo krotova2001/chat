@@ -21,7 +21,12 @@ namespace ChatServer
 {
     public partial class Form1 : Form
     {
-        List<ChatClient> chatClients=new List<ChatClient>();
+        Mutex mutex1;
+        Mutex mutex2;
+        Messag m1; // игровое сообщение в пределах раунда
+        Messag m2;
+        List<ChatClient> chatClients=new List<ChatClient>(); // список всех клиентов
+        Sudya sudya;
         public Form1()
         {
             InitializeComponent();
@@ -30,13 +35,18 @@ namespace ChatServer
                 TcpListener listener = new TcpListener(IPAddress.Parse("127.0.0.1"), 777);
                 listener.Start();
                 Task.Run(() => { Listening(listener); });
-                //Task.Run(() => { Send_clients_list(); });
+                Task.Run(() => { Send_clients_list(); });
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
+            mutex1 = new Mutex();
+            mutex2 = new Mutex();
+            sudya = new Sudya();
         }
+
+
         private void Listening(TcpListener listener)
         {
             try
@@ -94,7 +104,6 @@ namespace ChatServer
                     Messag mes = JsonSerializer.Deserialize<Messag>(data);
                     d = mes.Mes;
                     c = mes.choise;
-                    //if (d.Trim() != "")
                     {
                         this.Invoke(new Action(
                             () =>
@@ -104,6 +113,28 @@ namespace ChatServer
                             }
                             ));
                     }
+                    
+                    if(!mes.Common&&mes.Mes=="hod")
+                    {
+                        //Gaming();
+                        lock (sudya)
+                        {
+                            {
+                                sudya.Add_mes(mes);
+                            }
+                            String winner = sudya.Winner();
+                            if (winner != null)
+                            {
+                                this.Invoke(new Action(
+                                () =>
+                                {
+                                    cmd.Text += $"\nWinner - {winner}";
+                                }
+                                ));
+                            }
+                        }
+                    }
+                    
                     {
                         byte[] m = Encoding.Unicode.GetBytes(data_raw+"\r\n");
                         foreach (ChatClient cl in chatClients)
@@ -151,18 +182,20 @@ namespace ChatServer
                 Thread.Sleep(500);
                 if (chatClients.Count > 0)
                 {
-                    List<string> list = new List<string>();
+                    Messag messag = new Messag();
+                    messag.Name = "List";
+                    messag.Common = false;
                     foreach (ChatClient cl in chatClients)
                     {
-                        list.Add(cl.Name);
+                        messag.list.Add(cl.Name);
                     }
                     foreach (ChatClient cl in chatClients)
                     {
                         NetworkStream sm = cl.Client.GetStream();
-                        string jsonString = JsonSerializer.Serialize<List<string>>(list);
-                        byte[] m = Encoding.Unicode.GetBytes(jsonString);
+                        string jsonString2 = Base64Encode(JsonSerializer.Serialize<Messag>(messag));
+                        jsonString2 += "\r\n";
+                        byte[] m = Encoding.Unicode.GetBytes(jsonString2);
                         sm.Write(m, 0, m.Length);
-                        sm.Close();
                     }
                 }
             }
@@ -178,6 +211,22 @@ namespace ChatServer
         {
             var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
             return System.Text.Encoding.Unicode.GetString(base64EncodedBytes);
+        }
+
+        //начинаем игру
+        private void Gaming()
+        {
+            timer1 = new System.Windows.Forms.Timer();
+            timer1.Enabled = true;
+            timer1.Start();
+           
+        }
+
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            mutex1.ReleaseMutex();
+            mutex2.ReleaseMutex();
         }
     }
 }

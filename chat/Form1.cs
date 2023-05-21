@@ -85,7 +85,8 @@ namespace chat
                         }
                         else
                         {
-                            if (mes.Mes == "game")
+                            //если это сообщение не общее и приглашение к игре
+                            if (mes.Mes == "game"&&!mes.Common)
                             {
                                 Task.Run(() => { Game_call(mes); });
                             }
@@ -139,15 +140,25 @@ namespace chat
             {
                 if (tcpClient != null)
                 {
-                    NetworkStream sm = tcpClient.GetStream();
-                    byte[] m = new byte[1024];
-                    string jsonString;
-                    int l = sm.Read(m,0,m.Length);
-                    jsonString = Base64Decode(Encoding.UTF8.GetString(m));
-                    List <string> lst = JsonSerializer.Deserialize<List<string>>(jsonString);
-                    foreach (string cc in lst)
-                        listBox1.Items.Add(cc);
-                    sm.Close();
+                    Messag mes;
+                    StreamReader sr = new StreamReader(tcpClient.GetStream(), Encoding.Unicode);
+                    string data = Base64Decode(sr.ReadLine());
+                    if (data != null)
+                    {
+                        mes = JsonSerializer.Deserialize<Messag>(data);
+                        if (!mes.Common && mes.Name == "List") // тут фильтруются сообщения
+                        {
+                            {
+                                this.Invoke(new Action(
+                                () =>
+                                {
+                                    foreach (string item in mes.list)
+                                        listBox1.Items.Add(item);
+                                }
+                                ));
+                            }
+                        }
+                    }
                 }
             }
            
