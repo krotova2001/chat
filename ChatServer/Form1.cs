@@ -46,7 +46,6 @@ namespace ChatServer
             sudya = new Sudya();
         }
 
-
         private void Listening(TcpListener listener)
         {
             try
@@ -179,9 +178,10 @@ namespace ChatServer
         {
             while (true)
             {
-                Thread.Sleep(500);
                 if (chatClients.Count > 0)
                 {
+                    //с определенной периожичностью отсылаем всем актуальный список клиентов в сети
+                    Thread.Sleep(1500);
                     Messag messag = new Messag();
                     messag.Name = "List";
                     messag.Common = false;

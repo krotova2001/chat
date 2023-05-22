@@ -25,6 +25,10 @@ namespace chat
             Name = name;
             choise = c;
         }
-        public Messag() { }
+            public Messag()
+            {
+                list = new List<string>();
+            }
+        }
     }
-}
+
