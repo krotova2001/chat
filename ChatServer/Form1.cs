@@ -180,11 +180,12 @@ namespace ChatServer
             {
                 if (chatClients.Count > 0)
                 {
-                    //с определенной периожичностью отсылаем всем актуальный список клиентов в сети
+                    //с определенной периодичностью отсылаем всем актуальный список клиентов в сети
                     Thread.Sleep(1500);
                     Messag messag = new Messag();
                     messag.Name = "List";
                     messag.Common = false;
+                    messag.Mes = " ";
                     foreach (ChatClient cl in chatClients)
                     {
                         messag.list.Add(cl.Name);
@@ -193,9 +194,9 @@ namespace ChatServer
                     {
                         NetworkStream sm = cl.Client.GetStream();
                         string jsonString2 = Base64Encode(JsonSerializer.Serialize<Messag>(messag));
-                        jsonString2 += "\r\n";
-                        byte[] m = Encoding.Unicode.GetBytes(jsonString2);
+                        byte[] m = Encoding.Unicode.GetBytes(jsonString2+"\r\n");
                         sm.Write(m, 0, m.Length);
+                        //sm.Close();
                     }
                 }
             }

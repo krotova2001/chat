@@ -41,7 +41,7 @@ namespace chat
                     byte[] m = Encoding.Unicode.GetBytes(d);
                     sm.Write(m, 0, m.Length);
                     Task.Run(() => { ReadData(); });
-                    //Task.Run(() => { Listen_pool(); });
+                    Task.Run(() => { Listen_pool(); });
                     self_name = d;
                 }
                 catch (Exception ex)
