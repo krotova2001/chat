@@ -179,7 +179,7 @@ namespace chat
         //Game пассивно
         private void Game_call(Messag m)
         {
-            if (m.choise == self_name.Trim())
+            if (m.choise == self_name.Trim()) // если тот, с кеи хотят играть - это я, то играем
             {
                 Game game = new Game(self_name, m.Name, tcpClient);
                 game.ShowDialog(); //тут обязательно в диалоговом режиме, иначе виснет
