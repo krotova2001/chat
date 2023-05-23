@@ -1,19 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Net.Sockets;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.ToolBar;
 using System.IO;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Text.Json;
 
@@ -21,12 +13,7 @@ namespace ChatServer
 {
     public partial class Form1 : Form
     {
-        Mutex mutex1;
-        Mutex mutex2;
-        Messag m1; // игровое сообщение в пределах раунда
-        Messag m2;
         List<ChatClient> chatClients=new List<ChatClient>(); // список всех клиентов
-        Sudya sudya;
         public Form1()
         {
             InitializeComponent();
@@ -41,9 +28,6 @@ namespace ChatServer
             {
                 MessageBox.Show(ex.Message);
             }
-            mutex1 = new Mutex();
-            mutex2 = new Mutex();
-            sudya = new Sudya();
         }
 
         private void Listening(TcpListener listener)
@@ -108,21 +92,19 @@ namespace ChatServer
                             () =>
                             {
                                 cmd.Text += $"\n{client.Name}-{mes.Mes}";
-                                //cmd.Text += $"\n{client.Name + " выбор"}-{mes.choise}";
                             }
                             ));
                     }
                     
+                    //блок игры
                     if(!mes.Common&&mes.Mes=="hod")
                     {
-                        //Gaming();
-                        lock (sudya)
                         {
                             {
-                                sudya.Add_mes(mes);
+                                Sudya.Add_mes(mes); // записываем ход
                             }
-                            String winner = sudya.Winner();
-                            if (winner != null)
+                            String winner = "Победитель - "+Sudya.Winner(); // определяем победителя
+                            if (winner != null) // отправка сообщения о победителе
                             {
                                 this.Invoke(new Action(
                                 () =>
@@ -130,10 +112,33 @@ namespace ChatServer
                                     cmd.Text += $"\nWinner - {winner}";
                                 }
                                 ));
+                                Messag w = new Messag();
+                                w.Mes = winner;
+                                w.Common = false;
+                                w.choise = "w";
+                                string jsonString = Base64Encode(JsonSerializer.Serialize<Messag>(w));
+                                jsonString += "\r\n";
+                                byte[] mw = Encoding.Unicode.GetBytes(jsonString);
+                                foreach (ChatClient cl in chatClients)
+                                {
+                                    NetworkStream Ns = cl.Client.GetStream();
+                                    Ns.Write(mw, 0, mw.Length);
+                                }
+                               
+                            }
+                            else
+                            {
+                                this.Invoke(new Action(
+                            () =>
+                            {
+                                cmd.Text += $"\n{client.Name + " выбор"}-{mes.choise}";
+                            }
+                            ));
                             }
                         }
                     }
                     
+                    //пересылаем общие сообщения в чате всем участникам
                     {
                         byte[] m = Encoding.Unicode.GetBytes(data_raw+"\r\n");
                         foreach (ChatClient cl in chatClients)
@@ -181,7 +186,7 @@ namespace ChatServer
                 if (chatClients.Count > 0)
                 {
                     //с определенной периодичностью отсылаем всем актуальный список клиентов в сети
-                    Thread.Sleep(1500);
+                    Thread.Sleep(3000);
                     Messag messag = new Messag();
                     messag.Name = "List";
                     messag.Common = false;
@@ -195,12 +200,10 @@ namespace ChatServer
                         lock (cl)
                         {
                             NetworkStream sm = cl.Client.GetStream();
-                            StreamWriter sw = new StreamWriter(sm);
                             string jsonString2 = Base64Encode(JsonSerializer.Serialize<Messag>(messag));
+                            jsonString2 += "\r\n";
                             byte[] m = Encoding.Unicode.GetBytes(jsonString2);
-                            //sm.Flush();
-                            sw.WriteLine(jsonString2 + "\r\n");
-                            //sm.Flush();
+                            sm.Write(m, 0, m.Length);
                         }
                     }
                 }
@@ -210,29 +213,13 @@ namespace ChatServer
         public static string Base64Encode(string plainText)
         {
             var plainTextBytes = System.Text.Encoding.Unicode.GetBytes(plainText);
-            return System.Convert.ToBase64String(plainTextBytes)+"/r/n";
+            return System.Convert.ToBase64String(plainTextBytes);
         }
 
         public static string Base64Decode(string base64EncodedData)
         {
             var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
             return System.Text.Encoding.Unicode.GetString(base64EncodedBytes);
-        }
-
-        //начинаем игру
-        private void Gaming()
-        {
-            timer1 = new System.Windows.Forms.Timer();
-            timer1.Enabled = true;
-            timer1.Start();
-           
-        }
-
-
-        private void timer1_Tick(object sender, EventArgs e)
-        {
-            mutex1.ReleaseMutex();
-            mutex2.ReleaseMutex();
         }
     }
 }

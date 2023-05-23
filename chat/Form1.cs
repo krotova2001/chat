@@ -96,6 +96,7 @@ namespace chat
                                     this.Invoke(new Action(
                                     () =>
                                     {
+                                        listBox1.Items.Clear();
                                         foreach (string item in mes.list)
                                             listBox1.Items.Add(item);
                                     }
@@ -144,37 +145,6 @@ namespace chat
             {
                 MessageBox.Show("Connect to Server");
             }
-        }
-
-        //прием входящих сообщений о том кто онлайн
-        private void Listen_pool()
-        {
-            while (true)
-            {
-                if (tcpClient != null)
-                {
-                    Messag mes;
-                    StreamReader sr = new StreamReader(tcpClient.GetStream(), Encoding.Unicode);
-                    string data = Base64Decode(sr.ReadLine());
-                    if (data != null)
-                    {
-                        mes = JsonSerializer.Deserialize<Messag>(data);
-                        if (!mes.Common && mes.Name == "List") // тут фильтруются сообщения
-                        {
-                            {
-                                this.Invoke(new Action(
-                                () =>
-                                {
-                                    foreach (string item in mes.list)
-                                        listBox1.Items.Add(item);
-                                }
-                                ));
-                            }
-                        }
-                    }
-                }
-            }
-           
         }
 
         public static string Base64Encode(string plainText)

@@ -19,7 +19,6 @@ namespace chat
         string client1; // игрок 1
         string client2; // игрок 2
         string cl1_choise="z"; // выбор игрока 1
-        string cl2_choise ="z"; // выбор игрока 2
         int client_1_score = 0; // счет одного 
         int client_2_score = 0; // счет второго
 
@@ -67,32 +66,29 @@ namespace chat
         //запуск игры
         private void Start_game()
         {
-          
-                if (cl1_choise != "z")
+            try
+            {
+                Messag mes;
+                StreamReader sr = new StreamReader(tcpClient.GetStream(), Encoding.Unicode);
+                while (true)
                 {
-                    try
+                    string data = Base64Decode(sr.ReadLine()); // получим выбор оппонента
+                    mes = JsonSerializer.Deserialize<Messag>(data);
+                    if (mes.choise=="w")
                     {
-                        Messag mes;
-                        StreamReader sr = new StreamReader(tcpClient.GetStream(), Encoding.Unicode);
-                        while (true)
+                    this.Invoke(new Action(
+                        () =>
                         {
-                            string data = Base64Decode(sr.ReadLine()); // получим выбор оппонента
-                            mes = JsonSerializer.Deserialize<Messag>(data);
-                            {
-                                cl2_choise = mes.choise; // записали выбор оппонента
-                            }
-                            if (cl1_choise != "z" && cl2_choise != "z")
-                            {
-                                textBox1.Text = mes.choise.ToString();
-                            }
+                            textBox1.Text = mes.Mes;
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show(ex.Message);
+                        ));
                     }
                 }
-            
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
 
         //завершить
@@ -125,12 +121,12 @@ namespace chat
                        label4.Text = client_2_score.ToString();
                    }
                    ));
-             
             }
         }
 
         private void Send()
         {
+            textBox1.Clear();
             {
                 Messag to_send = new Messag("hod", client1, cl1_choise);
                 to_send.Common = false;

@@ -8,21 +8,18 @@ using System.Threading.Tasks;
 namespace ChatServer
 {
     //класс судьи для решения того, кто победил
-    internal class Sudya
+    internal static class Sudya
     {
-        public Messag cl1;
-        public Messag cl2;
-        string cl1_choise = "z"; // выбор игрока 1
-        string cl2_choise = "z"; // выбор игрока 2
-        string Reshenie=null;
-        List<Messag> messagList;
+        public static Messag cl1;
+        public static Messag cl2;
+        static string  cl1_choise = "z"; // выбор игрока 1
+        static string cl2_choise = "z"; // выбор игрока 2
+        static string Reshenie =null;
+        static List<Messag> messagList = new List<Messag>();
 
-        public Sudya()
-        {
-            messagList = new List<Messag>();    
-        }
 
-        public void Add_mes(Messag m)
+
+        static public void Add_mes(Messag m)
         {
             messagList.Add(m);
             if (messagList.Count > 1)
@@ -34,7 +31,7 @@ namespace ChatServer
             }
         }
 
-        void Hod()
+        static void Hod()
         {
             if (cl1_choise != "z" && cl2_choise != "z")
             {
@@ -71,7 +68,7 @@ namespace ChatServer
         }
 
         //выбор победителя
-        public string Winner()
+        static public string Winner()
         {
             string buf=null; 
             if (messagList.Count == 2)
