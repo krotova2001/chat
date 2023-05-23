@@ -162,22 +162,28 @@ namespace chat
         //Game
         private void button3_Click(object sender, EventArgs e)
         {
-            Messag messag = new Messag("game", self_name);
-            messag.Common = false;
-            NetworkStream sm = tcpClient.GetStream();
-            string jsonString = Base64Encode(JsonSerializer.Serialize<Messag>(messag));
-            jsonString += "\r\n";
-            byte[] m = Encoding.Unicode.GetBytes(jsonString);
-            sm.Write(m, 0, m.Length);
-            Game game = new Game(self_name,"", tcpClient);
-            game.ShowDialog();
+            if (listBox1.Items.Count > 1 && listBox1.SelectedItems.Count > 0 && listBox1.SelectedItem.ToString() != self_name)
+            {
+                Messag messag = new Messag("game", self_name, listBox1.SelectedItem.ToString());
+                messag.Common = false;
+                NetworkStream sm = tcpClient.GetStream();
+                string jsonString = Base64Encode(JsonSerializer.Serialize<Messag>(messag));
+                jsonString += "\r\n";
+                byte[] m = Encoding.Unicode.GetBytes(jsonString);
+                sm.Write(m, 0, m.Length);
+                Game game = new Game(self_name, "", tcpClient);
+                game.ShowDialog();
+            }
         }
 
         //Game пассивно
         private void Game_call(Messag m)
         {
-            Game game = new Game(self_name, m.Name, tcpClient);
-            game.ShowDialog(); //тут обязательно в диалоговом режиме, иначе виснет
+            if (m.choise == self_name.Trim())
+            {
+                Game game = new Game(self_name, m.Name, tcpClient);
+                game.ShowDialog(); //тут обязательно в диалоговом режиме, иначе виснет
+            }
         }
 
         
