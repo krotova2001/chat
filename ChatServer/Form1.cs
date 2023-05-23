@@ -108,7 +108,7 @@ namespace ChatServer
                             () =>
                             {
                                 cmd.Text += $"\n{client.Name}-{mes.Mes}";
-                                cmd.Text += $"\n{client.Name + " выбор"}-{mes.choise}";
+                                //cmd.Text += $"\n{client.Name + " выбор"}-{mes.choise}";
                             }
                             ));
                     }
@@ -193,10 +193,12 @@ namespace ChatServer
                     foreach (ChatClient cl in chatClients)
                     {
                         NetworkStream sm = cl.Client.GetStream();
+                        StreamWriter sw = new StreamWriter(sm);
                         string jsonString2 = Base64Encode(JsonSerializer.Serialize<Messag>(messag));
-                        byte[] m = Encoding.Unicode.GetBytes(jsonString2+"\r\n");
-                        sm.Write(m, 0, m.Length);
-                        //sm.Close();
+                        byte[] m = Encoding.Unicode.GetBytes(jsonString2);
+                        //sm.Flush();
+                        sw.WriteLine(jsonString2+"\r\n");
+                        //sm.Flush();
                     }
                 }
             }
