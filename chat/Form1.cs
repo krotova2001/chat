@@ -41,7 +41,7 @@ namespace chat
                     byte[] m = Encoding.Unicode.GetBytes(d);
                     sm.Write(m, 0, m.Length);
                     Task.Run(() => { ReadData(); });
-                    Task.Run(() => { Listen_pool(); });
+                    //Task.Run(() => { Listen_pool(); });
                     self_name = d;
                 }
                 catch (Exception ex)
@@ -90,7 +90,20 @@ namespace chat
                             {
                                 Task.Run(() => { Game_call(mes); });
                             }
+                            else if (!mes.Common && mes.Name == "List") // тут фильтруются сообщения
+                            {
+                                {
+                                    this.Invoke(new Action(
+                                    () =>
+                                    {
+                                        foreach (string item in mes.list)
+                                            listBox1.Items.Add(item);
+                                    }
+                                    ));
+                                }
+                            }
                         }
+
                     }
                 } while (d != "exit");
             }

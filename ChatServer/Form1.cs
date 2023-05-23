@@ -192,13 +192,16 @@ namespace ChatServer
                     }
                     foreach (ChatClient cl in chatClients)
                     {
-                        NetworkStream sm = cl.Client.GetStream();
-                        StreamWriter sw = new StreamWriter(sm);
-                        string jsonString2 = Base64Encode(JsonSerializer.Serialize<Messag>(messag));
-                        byte[] m = Encoding.Unicode.GetBytes(jsonString2);
-                        //sm.Flush();
-                        sw.WriteLine(jsonString2+"\r\n");
-                        //sm.Flush();
+                        lock (cl)
+                        {
+                            NetworkStream sm = cl.Client.GetStream();
+                            StreamWriter sw = new StreamWriter(sm);
+                            string jsonString2 = Base64Encode(JsonSerializer.Serialize<Messag>(messag));
+                            byte[] m = Encoding.Unicode.GetBytes(jsonString2);
+                            //sm.Flush();
+                            sw.WriteLine(jsonString2 + "\r\n");
+                            //sm.Flush();
+                        }
                     }
                 }
             }
